@@ -9,4 +9,3 @@ python-dotenv==1.1.1
 requests==2.32.4
 streamlit==1.45.1
 sentence_transformers==5.0.0
-pysqlite3-binary==0.5.4

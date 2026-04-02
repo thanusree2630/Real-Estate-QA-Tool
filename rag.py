@@ -36,19 +36,22 @@ def initialize_components():
     global llm, vector_store
 
     if llm is None:
-        llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0.9, max_tokens=1024)
-
-    if vector_store is None:
-        ef = HuggingFaceEmbeddings(
-            model_name=EMBEDDING_MODEL,
-            model_kwargs={"trust_remote_code": True} # To use the code which is not part of standard library
+        llm = ChatGroq(
+            model="llama-3.1-8b-instant",
+            temperature=0.9,
+            max_tokens=1024
         )
 
-        vector_store = Chroma(
-            collection_name=COLLECTION_NAME,
-            embedding_function=ef,
-            persist_directory=str(VECTORSTORE_DIR)
-        )
+    ef = HuggingFaceEmbeddings(
+        model_name=EMBEDDING_MODEL,
+        model_kwargs={"trust_remote_code": True}
+    )
+
+    # Always create fresh vector store in memory
+    vector_store = Chroma(
+        collection_name=COLLECTION_NAME,
+        embedding_function=ef
+    )
 
 def load_url_with_headers(url):
     headers = {
@@ -73,15 +76,12 @@ def load_url_with_headers(url):
 
 def process_urls(urls):
     """
-    This function scraps data from a url and stores it in a vector db
-    :param urls: input urls
-    :return:
+    Scrapes data from URLs and stores it in vector DB
     """
-    yield "Initializing Components"
-    initialize_components()
+    global vector_store
 
-    yield "Resetting vector store...✅"
-    vector_store.reset_collection()
+    yield "Initializing Components...✅"
+    initialize_components()
 
     yield "Loading data...✅"
     data = [load_url_with_headers(url) for url in urls]
@@ -91,16 +91,19 @@ def process_urls(urls):
         separators=["\n\n", "\n", ".", " "],
         chunk_size=CHUNK_SIZE
     )
+
     docs = text_splitter.split_documents(data)
+
     for doc in docs:
         if "source" not in doc.metadata:
             doc.metadata["source"] = "unknown"
 
-    yield "Add chunks to vector database...✅"
-    uuids = [str(uuid4()) for _ in range(len(docs))]
+    yield "Adding chunks to vector database...✅"
+    uuids = [str(uuid4()) for _ in docs]
     vector_store.add_documents(docs, ids=uuids)
 
     yield "Done adding docs to vector database...✅"
+    
 
 def generate_answer(query):
     if not vector_store:

@@ -89,7 +89,7 @@ GROQ_API_KEY=your_api_key_here
 ### Run the Streamlit app:
 
 ```
-streamlit run app.py
+streamlit run main.py
 ```
 
 ### Steps:

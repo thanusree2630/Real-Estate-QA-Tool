@@ -11,14 +11,8 @@ An intelligent **Question & Answer system** that extracts and retrieves informat
 
 ## 📸 Demo Screenshots
 
-### 🏠 Home Page
-![Home](screenshots/home.png)
-
-### 🔗 URL Processing
-![URL Input](screenshots/url-input.png)
-
 ### 💬 Q&A Output
-![QA](screenshots/qa-demo.png)
+![QA](Working.png)
 
 ---
 
